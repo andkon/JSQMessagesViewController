@@ -88,11 +88,22 @@
  */
 @property (assign, nonatomic) CGFloat preferredDefaultHeight;
 
+
+
+
+
 /**
  *  Enables or disables the send button based on whether or not its `textView` has text.
  *  That is, the send button will be enabled if there is text in the `textView`, and disabled otherwise.
  */
 - (void)toggleSendButtonEnabled;
+
+/**
+ *  Sets up the toolbar content view above the tab bar buttons.
+ *  
+ *  @discussion You'll need to sublass JSQMessageInputToolbar's awakeFromNib and call super, then call this there, as it was previously called in the awakeFromNib.
+ */
+-(JSQMessagesToolbarContentView *)setupToolbarContentView;
 
 /**
  *  Loads the content view for the toolbar.

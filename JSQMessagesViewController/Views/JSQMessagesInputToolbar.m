@@ -36,6 +36,8 @@ static void * kJSQMessagesInputToolbarKeyValueObservingContext = &kJSQMessagesIn
 - (void)jsq_leftBarButtonPressed:(UIButton *)sender;
 - (void)jsq_rightBarButtonPressed:(UIButton *)sender;
 
+// remember: these are just to observe the buttons on JSQ's contentView.
+// All other custom content bar stuff needs its own observation code.
 - (void)jsq_addObservers;
 - (void)jsq_removeObservers;
 
@@ -59,19 +61,25 @@ static void * kJSQMessagesInputToolbarKeyValueObservingContext = &kJSQMessagesIn
 
     self.preferredDefaultHeight = 44.0f;
 
+}
+
+-(JSQMessagesToolbarContentView *)setupToolbarContentView
+{
     JSQMessagesToolbarContentView *toolbarContentView = [self loadToolbarContentView];
     toolbarContentView.frame = self.frame;
     [self addSubview:toolbarContentView];
     [self jsq_pinAllEdgesOfSubview:toolbarContentView];
     [self setNeedsUpdateConstraints];
     _contentView = toolbarContentView;
-
+    
     [self jsq_addObservers];
-
+    
     self.contentView.leftBarButtonItem = [JSQMessagesToolbarButtonFactory defaultAccessoryButtonItem];
     self.contentView.rightBarButtonItem = [JSQMessagesToolbarButtonFactory defaultSendButtonItem];
-
+    
     [self toggleSendButtonEnabled];
+    
+    return toolbarContentView;
 }
 
 - (JSQMessagesToolbarContentView *)loadToolbarContentView
@@ -155,7 +163,7 @@ static void * kJSQMessagesInputToolbarKeyValueObservingContext = &kJSQMessagesIn
     }
 }
 
-- (void)jsq_addObservers
+- (void)jsq_addContentViewObservers
 {
     if (self.jsq_isObserving) {
         return;
@@ -174,7 +182,7 @@ static void * kJSQMessagesInputToolbarKeyValueObservingContext = &kJSQMessagesIn
     self.jsq_isObserving = YES;
 }
 
-- (void)jsq_removeObservers
+- (void)jsq_removeContentViewObservers
 {
     if (!_jsq_isObserving) {
         return;
