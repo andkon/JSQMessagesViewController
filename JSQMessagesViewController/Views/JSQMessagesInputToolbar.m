@@ -38,8 +38,8 @@ static void * kJSQMessagesInputToolbarKeyValueObservingContext = &kJSQMessagesIn
 
 // remember: these are just to observe the buttons on JSQ's contentView.
 // All other custom content bar stuff needs its own observation code.
-- (void)jsq_addObservers;
-- (void)jsq_removeObservers;
+- (void)jsq_addContentViewObservers;
+- (void)jsq_removeContentViewObservers;
 
 @end
 
@@ -72,7 +72,7 @@ static void * kJSQMessagesInputToolbarKeyValueObservingContext = &kJSQMessagesIn
     [self setNeedsUpdateConstraints];
     _contentView = toolbarContentView;
     
-    [self jsq_addObservers];
+    [self jsq_addContentViewObservers];
     
     self.contentView.leftBarButtonItem = [JSQMessagesToolbarButtonFactory defaultAccessoryButtonItem];
     self.contentView.rightBarButtonItem = [JSQMessagesToolbarButtonFactory defaultSendButtonItem];
@@ -92,7 +92,7 @@ static void * kJSQMessagesInputToolbarKeyValueObservingContext = &kJSQMessagesIn
 
 - (void)dealloc
 {
-    [self jsq_removeObservers];
+    [self jsq_removeContentViewObservers];
     _contentView = nil;
 }
 
