@@ -39,4 +39,18 @@
     [self jsq_pinSubview:subview toEdge:NSLayoutAttributeTrailing];
 }
 
+- (void)jsq_pinBottomOfSubview:(UIView *)subview
+{
+    [self jsq_pinSubview:subview toEdge:NSLayoutAttributeBottom];
+    [self jsq_pinSubview:subview toEdge:NSLayoutAttributeLeading];
+    [self jsq_pinSubview:subview toEdge:NSLayoutAttributeTrailing];
+}
+
+-(void)jsq_pinTopOfSubview:(UIView *)subview
+{
+    [self jsq_pinSubview:subview toEdge:NSLayoutAttributeTop];
+    [self jsq_pinSubview:subview toEdge:NSLayoutAttributeLeading];
+    [self jsq_pinSubview:subview toEdge:NSLayoutAttributeTrailing];
+}
+
 @end
