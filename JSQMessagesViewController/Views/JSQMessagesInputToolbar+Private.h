@@ -6,9 +6,9 @@
 //
 //
 
-#import "JSQMessagesViewController.h"
+#import "JSQMessagesInputToolbar.h"
 
-@interface JSQMessagesViewController ()
+@interface JSQMessagesInputToolbar ()
 
 /**
  *
