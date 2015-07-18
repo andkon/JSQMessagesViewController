@@ -58,7 +58,9 @@
  *  composing a new message. It is displayed above and follow the movement of 
  *  the system keyboard.
  */
-@interface JSQMessagesInputToolbar : UIToolbar
+@interface JSQMessagesInputToolbar : UIToolbar {
+@protected JSQMessagesToolbarContentView __weak *_contentView;
+} // this is so that we can actually access the toolbar content view's ivar in the subclasses.
 
 /**
  *  The object that acts as the delegate of the toolbar.
