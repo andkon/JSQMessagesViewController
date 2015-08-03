@@ -33,4 +33,12 @@
  * If you override this method, you should probably call super as well.
  */
 - (void)jsq_configureMessagesInputToolbar;
+
+/**
+ *
+ * This private method is what the VC uses to determine the content inset of the collection view.
+ * To handle different toolbars that have stuff above the contentView, you should override it.
+ */
+-(void)jsq_updateCollectionViewInsets;
+
 @end
