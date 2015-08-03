@@ -41,4 +41,9 @@
  */
 -(void)jsq_updateCollectionViewInsets;
 
+/**
+ *
+ * I guess I need to add this method too - it actually sets the collectionview scroll and content insets.
+ */
+- (void)jsq_setCollectionViewInsetsTopValue:(CGFloat)top bottomValue:(CGFloat)bottom;
 @end
