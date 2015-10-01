@@ -139,16 +139,6 @@ static void * kJSQMessagesKeyValueObservingContext = &kJSQMessagesKeyValueObserv
     
     // keyboard tracking, dismissing, and input view stuff
     [self.collectionView setKeyboardDismissMode:UIScrollViewKeyboardDismissModeInteractive];
-    
-    // now make the invisible view
-    UIView *invisView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 1, 1)];
-    [invisView setAlpha:0.0f];
-    
-    // add that invisible view as accessory view
-    [self.inputToolbar setInputAccessoryView:invisView];
-//    [self.inputToolbar.contentView.textView becomeFirstResponder];
-    
-    // set up keyboard tracking
 }
 
 - (void)jsq_configureMessagesInputToolbar
