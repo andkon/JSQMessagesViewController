@@ -57,7 +57,6 @@ static void * kJSQMessagesKeyValueObservingContext = &kJSQMessagesKeyValueObserv
 
 @property (weak, nonatomic) UIView *snapshotView;
 
-@property (strong, nonatomic) JSQMessagesKeyboardController *keyboardController;
 
 @property (assign, nonatomic) BOOL jsq_isObserving;
 
@@ -65,12 +64,9 @@ static void * kJSQMessagesKeyValueObservingContext = &kJSQMessagesKeyValueObserv
 
 - (NSString *)jsq_currentlyComposedMessageText;
 
-- (void)jsq_handleDidChangeStatusBarFrameNotification:(NSNotification *)notification;
 - (void)jsq_didReceiveMenuWillShowNotification:(NSNotification *)notification;
 - (void)jsq_didReceiveMenuWillHideNotification:(NSNotification *)notification;
 
-- (void)jsq_updateKeyboardTriggerPoint;
-- (void)jsq_setToolbarBottomLayoutGuideConstant:(CGFloat)constant;
 
 - (void)jsq_handleInteractivePopGestureRecognizer:(UIGestureRecognizer *)gestureRecognizer;
 
@@ -140,11 +136,9 @@ static void * kJSQMessagesKeyValueObservingContext = &kJSQMessagesKeyValueObserv
     self.topContentAdditionalInset = 0.0f;
 
     [self jsq_updateCollectionViewInsets];
-
-    self.keyboardController = [[JSQMessagesKeyboardController alloc] initWithTextView:self.inputToolbar.contentView.textView
-                                                                          contextView:self.view
-                                                                 panGestureRecognizer:self.collectionView.panGestureRecognizer
-                                                                             delegate:self];
+    
+    // keyboard tracking, dismissing, and input view stuff
+    [self.collectionView setKeyboardDismissMode:UIScrollViewKeyboardDismissModeInteractive];
 }
 
 - (void)jsq_configureMessagesInputToolbar
@@ -173,8 +167,6 @@ static void * kJSQMessagesKeyValueObservingContext = &kJSQMessagesKeyValueObserv
     _outgoingCellIdentifier = nil;
     _incomingCellIdentifier = nil;
 
-    [_keyboardController endListeningForKeyboard];
-    _keyboardController = nil;
 }
 
 #pragma mark - Setters
@@ -236,7 +228,6 @@ static void * kJSQMessagesKeyValueObservingContext = &kJSQMessagesKeyValueObserv
         });
     }
 
-    [self jsq_updateKeyboardTriggerPoint];
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -244,7 +235,6 @@ static void * kJSQMessagesKeyValueObservingContext = &kJSQMessagesKeyValueObserv
     [super viewDidAppear:animated];
     [self jsq_addObservers];
     [self jsq_addActionToInteractivePopGestureRecognizer:YES];
-    [self.keyboardController beginListeningForKeyboard];
 
     if ([UIDevice jsq_isCurrentDeviceBeforeiOS8]) {
         [self.snapshotView removeFromSuperview];
@@ -262,7 +252,6 @@ static void * kJSQMessagesKeyValueObservingContext = &kJSQMessagesKeyValueObserv
 {
     [super viewDidDisappear:animated];
     [self jsq_removeObservers];
-    [self.keyboardController endListeningForKeyboard];
 }
 
 - (void)didReceiveMemoryWarning
@@ -721,13 +710,6 @@ static void * kJSQMessagesKeyValueObservingContext = &kJSQMessagesKeyValueObserv
 
 #pragma mark - Notifications
 
-- (void)jsq_handleDidChangeStatusBarFrameNotification:(NSNotification *)notification
-{
-    if (self.keyboardController.keyboardIsVisible) {
-        [self jsq_setToolbarBottomLayoutGuideConstant:CGRectGetHeight(self.keyboardController.currentKeyboardFrame)];
-    }
-}
-
 - (void)jsq_didReceiveMenuWillShowNotification:(NSNotification *)notification
 {
     if (!self.selectedIndexPathForMenu) {
@@ -789,76 +771,7 @@ static void * kJSQMessagesKeyValueObservingContext = &kJSQMessagesKeyValueObserv
     }
 }
 
-#pragma mark - Keyboard controller delegate
 
-- (void)keyboardController:(JSQMessagesKeyboardController *)keyboardController keyboardDidChangeFrame:(CGRect)keyboardFrame
-{
-    if (![self.inputToolbar.contentView.textView isFirstResponder] && self.toolbarBottomLayoutGuide.constant == 0.0f) {
-        return;
-    }
-
-    CGFloat heightFromBottom = CGRectGetMaxY(self.collectionView.frame) - CGRectGetMinY(keyboardFrame);
-
-    heightFromBottom = MAX(0.0f, heightFromBottom);
-
-    [self jsq_setToolbarBottomLayoutGuideConstant:heightFromBottom];
-}
-
-- (void)jsq_setToolbarBottomLayoutGuideConstant:(CGFloat)constant
-{
-    self.toolbarBottomLayoutGuide.constant = constant;
-    [self.view setNeedsUpdateConstraints];
-    [self.view layoutIfNeeded];
-
-    [self jsq_updateCollectionViewInsets];
-}
-
-- (void)jsq_updateKeyboardTriggerPoint
-{
-    self.keyboardController.keyboardTriggerPoint = CGPointMake(0.0f, CGRectGetHeight(self.inputToolbar.bounds));
-}
-
-#pragma mark - Gesture recognizers
-
-- (void)jsq_handleInteractivePopGestureRecognizer:(UIGestureRecognizer *)gestureRecognizer
-{
-    switch (gestureRecognizer.state) {
-        case UIGestureRecognizerStateBegan:
-        {
-            if ([UIDevice jsq_isCurrentDeviceBeforeiOS8]) {
-                [self.snapshotView removeFromSuperview];
-            }
-
-            [self.keyboardController endListeningForKeyboard];
-
-            if ([UIDevice jsq_isCurrentDeviceBeforeiOS8]) {
-                [self.inputToolbar.contentView.textView resignFirstResponder];
-                [UIView animateWithDuration:0.0
-                                 animations:^{
-                                     [self jsq_setToolbarBottomLayoutGuideConstant:0.0f];
-                                 }];
-
-                UIView *snapshot = [self.view snapshotViewAfterScreenUpdates:YES];
-                [self.view addSubview:snapshot];
-                self.snapshotView = snapshot;
-            }
-        }
-            break;
-        case UIGestureRecognizerStateChanged:
-            break;
-        case UIGestureRecognizerStateCancelled:
-        case UIGestureRecognizerStateEnded:
-        case UIGestureRecognizerStateFailed:
-            [self.keyboardController beginListeningForKeyboard];
-
-            if ([UIDevice jsq_isCurrentDeviceBeforeiOS8]) {
-                [self.snapshotView removeFromSuperview];
-            }
-            break;
-        default:
-            break;
-    }
-}
 
 #pragma mark - Input toolbar utilities
 
@@ -891,7 +804,6 @@ static void * kJSQMessagesKeyValueObservingContext = &kJSQMessagesKeyValueObserv
 
     [self jsq_adjustInputToolbarHeightConstraintByDelta:dy];
 
-    [self jsq_updateKeyboardTriggerPoint];
 
     if (dy < 0) {
         [self jsq_scrollComposerTextViewToBottomAnimated:NO];
@@ -986,10 +898,6 @@ static void * kJSQMessagesKeyValueObservingContext = &kJSQMessagesKeyValueObserv
 - (void)jsq_registerForNotifications:(BOOL)registerForNotifications
 {
     if (registerForNotifications) {
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(jsq_handleDidChangeStatusBarFrameNotification:)
-                                                     name:UIApplicationDidChangeStatusBarFrameNotification
-                                                   object:nil];
 
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(jsq_didReceiveMenuWillShowNotification:)
@@ -1002,10 +910,6 @@ static void * kJSQMessagesKeyValueObservingContext = &kJSQMessagesKeyValueObserv
                                                    object:nil];
     }
     else {
-        [[NSNotificationCenter defaultCenter] removeObserver:self
-                                                        name:UIApplicationDidChangeStatusBarFrameNotification
-                                                      object:nil];
-
         [[NSNotificationCenter defaultCenter] removeObserver:self
                                                         name:UIMenuControllerWillShowMenuNotification
                                                       object:nil];

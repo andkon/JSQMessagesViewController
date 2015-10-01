@@ -60,6 +60,7 @@ static void * kJSQMessagesInputToolbarKeyValueObservingContext = &kJSQMessagesIn
     self.sendButtonOnRight = YES;
 
     self.preferredDefaultHeight = 44.0f;
+    [self setupToolbarContentView];
 
 }
 

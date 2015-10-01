@@ -91,7 +91,13 @@
 @property (assign, nonatomic) CGFloat preferredDefaultHeight;
 
 
+@property (nonatomic, readwrite, retain) UIView *inputAccessoryView;
+@property(nonatomic, readonly, strong) UIInputViewController *inputAccessoryViewController;
 
+@property (nonatomic, readwrite, retain) UIView *inputView;
+@property(nonatomic, readonly, strong) UIInputViewController *inputViewController;
+
+-(UIView *)loadViewForClass:(Class)class;
 
 
 /**
