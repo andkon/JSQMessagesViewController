@@ -97,8 +97,6 @@
 @property (nonatomic, readwrite, strong) UIView *inputView;
 @property (nonatomic, readwrite, strong) UIInputViewController *inputViewController;
 
--(UIView *)loadViewForClass:(Class)class;
-
 
 /**
  *  Enables or disables the send button based on whether or not its `textView` has text.
