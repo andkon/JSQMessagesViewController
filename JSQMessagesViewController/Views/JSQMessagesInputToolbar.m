@@ -65,6 +65,11 @@ static void * kJSQMessagesInputToolbarKeyValueObservingContext = &kJSQMessagesIn
 
 }
 
+-(BOOL)canBecomeFirstResponder
+{
+    return YES;
+}
+
 -(JSQMessagesToolbarContentView *)setupToolbarContentView
 {
     JSQMessagesToolbarContentView *toolbarContentView = [self loadToolbarContentView];
